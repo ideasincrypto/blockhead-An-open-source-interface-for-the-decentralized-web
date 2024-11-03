@@ -1,7 +1,8 @@
 <script lang="ts">
 	// Context
 	import { preferences } from '$/state/preferences'
-	import { eip6963Providers, findEip6963Provider } from '$/state/wallets'
+	import { getWalletsContext } from '$/state/wallets.svelte'
+	const wallets = getWalletsContext()
 
 
 	// Constants/types
@@ -24,10 +25,11 @@
 
 	// Internal state
 	$: knownWalletConfig = selector.knownWallet && knownWalletsByType[selector.knownWallet.type]
-	$: eip6963Provider = selector.eip6963 && findEip6963Provider({
-		eip6963Providers: $eip6963Providers,
-		rdns: selector.eip6963.rdns,
-	})
+	$: eip6963Provider = (
+		selector.eip6963 && wallets.findEip6963Provider({
+			rdns: selector.eip6963.rdns,
+		})
+	)
 
 	$: icon = knownWalletConfig?.icon || eip6963Provider?.info.icon
 	$: name = knownWalletConfig?.name || eip6963Provider?.info.name
