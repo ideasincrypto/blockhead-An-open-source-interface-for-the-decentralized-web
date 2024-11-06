@@ -1,13 +1,6 @@
 <script lang="ts">
-	// Params/Context
-	import {
-		networkSlug,
-	} from '../../_explorerParams'
-
-	import {
-		explorerNetwork,
-		explorerBlockNumber,
-	} from '../../_explorerContext'
+	// Context
+	import { explorerContext } from '../../_explorerContext.svelte'
 
 
 	// External stores
@@ -15,19 +8,24 @@
 
 
 	// Internal state
-	$: networkProvider = $preferences.rpcNetwork
+	const networkProvider = $derived(
+		$preferences.rpcNetwork
+	)
 
-	$: showCurrentBlockHeight = true
+	let showCurrentBlockHeight = $state(true)
 
-	$: showCurrentPrice = [
-		'ethereum',
-		'polygon',
-		'avalanche',
-		'fantom',
-		'bsc'
-	].includes($networkSlug)
+	const showCurrentPrice = $derived(
+		[
+			'ethereum',
+			'polygon',
+			'avalanche',
+			'fantom',
+			'bsc'
+		]
+			.includes(explorerContext.network?.slug ?? '')
+	)
 
-	$: showHistoricalPrice = false
+	let showHistoricalPrice = $state(false)
 
 
 	// Components
@@ -42,8 +40,8 @@
 	{#if showCurrentBlockHeight}
 		<section class="card">
 			<EthereumBlockHeight
-				network={$explorerNetwork}
-				blockNumber={$explorerBlockNumber}
+				network={explorerContext.network}
+				blockNumber={explorerContext.blockNumber}
 			/>
 		</section>
 	{/if}
@@ -54,10 +52,10 @@
 				{networkProvider}
 				currentPriceProvider={$preferences.currentPriceProvider}
 				query={{
-					erc20Token: $explorerNetwork.nativeCurrency,
+					erc20Token: explorerContext.network.nativeCurrency,
 				}}
 				quoteCurrency={$preferences.quoteCurrency}
-				blockNumber={$explorerBlockNumber}
+				blockNumber={explorerContext.blockNumber}
 			/>
 		</section>
 	{/if}
@@ -68,16 +66,16 @@
 		<section class="card">
 			<HistoricalPriceChart
 				historicalPriceProvider={$preferences.historicalPriceProvider}
-				currencies={[$explorerNetwork.nativeCurrency.symbol]}
+				currencies={[explorerContext.network.nativeCurrency.symbol]}
 				quoteCurrency={$preferences.quoteCurrency}
 			/>
 		</section>
 	</div>
 {/if}
 
-{#if $explorerNetwork}
+{#if explorerContext.network}
 	<EthereumBlocks
-		network={$explorerNetwork}
+		network={explorerContext.network}
 	/>
 {/if}
 
